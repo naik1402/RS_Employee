@@ -1,0 +1,115 @@
+
+
+.homepage-container {
+  margin-left: 260px; /* Equal to sidebar width + some space */
+  margin-right: 40px; /* Add right space from browser edge */
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 50px;
+  padding: 100px 0; /* Only top and bottom padding */
+  background-color: #000;
+  min-height: 100vh;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+}
+
+/* Card Base */
+.card {
+  width: 260px;
+  height: 500px;
+  border-radius: 10px;
+  padding: 15px 10px;
+  cursor: pointer;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: white;
+  box-shadow: 0 0 5px rgba(255, 255, 255, 0.05);
+  transition: transform 0.3s;
+}
+
+.card:hover {
+  transform: scale(1.02);
+}
+
+/* Individual Backgrounds */
+.card.blue {
+  background-color: #3d5a80;
+  border: 1px solid #3d5a80;
+  height: 230px;
+}
+.card.green {
+  background-color: #264d2f;
+  border: 1px solid #4caf50;
+  height: 230px;
+}
+.card.purple {
+  background-color: #3c2a56;
+  border: 1px solid #6f42c1;
+  height: 230px;
+}
+
+/* Image styling */
+.card-img {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 5px;
+
+}
+
+/* Heading */
+.card h5 {
+  margin: 20px 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: white;
+}
+
+/* Line */
+.card hr {
+  border: none;
+  border-top: 1px solid #ccc;
+  margin: 10px 0;
+  width: 90%;
+  align-self: center;
+}
+
+/* Button styles */
+.view-btn {
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  /* display: inline-flex; */
+  /* align-items: center; */
+  /* justify-content: center; */
+  gap: 4px;
+  /* width: fit-content; */
+  /* align-self: flex-end;  */
+  margin-right: 5px;     /* Optional: spacing from right */
+  transition: background 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); 
+}
+
+/* Button colors */
+.view-blue {
+  background-color: #007bff;
+  color: white;
+}
+.view-green {
+  background-color: #28a745;
+  color: white;
+}
+.view-purple {
+  background-color: #6f42c1;
+  color: white;
+}
+
+.view-btn:hover {
+  opacity: 0.9;
+}
