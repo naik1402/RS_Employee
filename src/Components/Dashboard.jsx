@@ -7,7 +7,7 @@ import rescard from '../assets/images/ResignationCard.png'
 
 function Dashboard() {
   return (
-    <div className='flex gap-4 flex-wrap pt-[100px]'>
+    <div className='flex gap-4 flex-wrap pt-[115px]'>
       <div className="card blue" >
         <img src={empcard} alt="Employee" className="card-img" />
         <h5>Employee<br />Details</h5>

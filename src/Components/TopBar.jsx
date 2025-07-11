@@ -15,7 +15,7 @@ function TopBar(props) {
       <button className='bg-[#FBC42D73] py-2 px-10 text-white text-xl border border-[#FBC42D33] rounded-full' onClick={() => navigate(-1)}>
         Back
       </button>
-      <p className=" absolute left-1/2 text-2xl text-white font-bold text-center">{props.tittle}</p>
+        <p className="w-full text-2xl text-white font-bold text-center">{props.tittle}</p>
       {!hideAddButton && (
         <button
           onClick={props.onAddClick}

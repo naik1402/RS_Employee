@@ -21,7 +21,7 @@ function LeaveDashboard() {
         </div>
       </div>
       <div className='cardleave'>
-        <img src={hrleave} alt="" />
+        <img src={hrleave} alt="" loading="lazy"/>
         <h5 >HR Leave<br />Details</h5>
         <hr className='w-[90%] mx-auto' />
         <div className='w-full px-2 flex justify-end'>

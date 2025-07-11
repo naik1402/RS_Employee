@@ -1,15 +1,17 @@
+// ✅ Updated AddEmployee.jsx
 import React, { useState } from 'react';
+import EmployeeService from "../ApiServices/EmployeeService";
+import { toast } from 'react-toastify';
 
-const AddEmployee = ({ onClose, onSave }) => {
+const AddEmployee = ({ onClose,fetchEmployeeDetails }) => {
   const [form, setForm] = useState({
     email: '',
     empId: '',
     name: '',
+    mobile: '',
     role: '',
-    designation: '',
-    mobile: ''
+    designation: ''
   });
-
   const [errors, setErrors] = useState({});
 
   const validateField = (name, value) => {
@@ -57,63 +59,62 @@ const AddEmployee = ({ onClose, onSave }) => {
       if (error) newErrors[name] = error;
     });
     setErrors(newErrors);
+
     if (Object.keys(newErrors).length === 0) {
-      onSave(form);
-      onClose();
+      const newEmployee = {
+        empId: form.empId,
+        fullName: form.name,
+        mobileNo: form.mobile,
+        emailId: form.email,
+        designation: form.designation,
+        role: form.role,
+        status: "request"
+      };
+
+      EmployeeService.AddEmployee(newEmployee)
+        .then(() => {
+          toast.success("Employee added successfully!");
+          fetchEmployeeDetails();
+          onClose();
+        })
+        .catch((err) => {
+          if (err.response?.status === 409) {
+            toast.error("Employee with this ID or Mobile already exists.");
+          } 
+          // else {
+          //   toast.error("Failed to add employee.");
+          // }
+        });
     }
   };
 
   return (
-    <div className="fixed inset-0  backdrop-blur-xl bg-black/50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 backdrop-blur-xl bg-black/50 flex items-center justify-center z-50">
       <div className="bg-[#2A4455] text-white rounded-3xl p-10 w-[700px] shadow-lg">
-        <h2 className="text-2xl font-semibold mb-8 text-center">Add Details</h2>
+        <h2 className="text-2xl font-semibold mb-8 text-center">Add Employee</h2>
         <div className="grid grid-cols-2 gap-6">
           <div>
-            <label >Email</label>
-            <input
-              type="email"
-              name="email"
-              value={form.email}
-              onChange={handleChange}
-              className="w-full p-3  mt-1 rounded-md border border-gray-300 text-black bg-[#FFFFFF8A]"
-            />
+            <label>Email</label>
+            <input type="email" name="email" value={form.email} onChange={handleChange} className="w-full p-3 mt-1 rounded-md border border-gray-300 text-black bg-[#FFFFFF8A]" />
             {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email}</p>}
           </div>
 
           <div>
             <label>Employee ID</label>
-            <input
-              type="text"
-              name="empId"
-              value={form.empId}
-              onChange={handleChange}
-              className="w-full p-3 mt-1 rounded-md border border-gray-300 text-black bg-[#FFFFFF8A]"
-            />
+            <input type="text" name="empId" value={form.empId} onChange={handleChange} className="w-full p-3 mt-1 rounded-md border border-gray-300 text-black bg-[#FFFFFF8A]" />
             {errors.empId && <p className="text-red-400 text-sm mt-1">{errors.empId}</p>}
           </div>
 
           <div>
             <label>Full Name</label>
-            <input
-              type="text"
-              name="name"
-              value={form.name}
-              onChange={handleChange}
-              className="w-full p-3 mt-1 rounded-md border border-gray-300 text-black bg-[#FFFFFF8A]"
-            />
+            <input type="text" name="name" value={form.name} onChange={handleChange} className="w-full p-3 mt-1 rounded-md border border-gray-300 text-black bg-[#FFFFFF8A]" />
             {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name}</p>}
           </div>
 
           <div>
             <label>Role</label>
-            <select
-              name="role"
-              value={form.role}
-              onChange={handleChange}
-              className="w-full p-3 mt-1 rounded-md border border-gray-300 text-black bg-[#FFFFFF8A]"
-            >
+            <select name="role" value={form.role} onChange={handleChange} className="w-full p-3 mt-1 rounded-md border border-gray-300 text-black bg-[#FFFFFF8A]">
               <option value="">Select Role</option>
-              {/* optgroup roles here (unchanged) */}
               <option value="Employee">Employee</option>
               <option value="HR">HR</option>
             </select>
@@ -122,14 +123,10 @@ const AddEmployee = ({ onClose, onSave }) => {
 
           <div>
             <label>Designation</label>
-            <select
-              name="designation"
-              value={form.designation}
-              onChange={handleChange}
-              className="w-full p-3 mt-1 rounded-md border border-gray-300 text-black bg-[#FFFFFF8A]"
-            >
+            <select name="designation" value={form.designation} onChange={handleChange} className="w-full p-3 mt-1 rounded-md border border-gray-300 text-black bg-[#FFFFFF8A]">
               <option value="">Select Designation</option>
-              <optgroup label="Core Engineering">
+              
+<optgroup label="Core Engineering">
 <option>Software Intern</option>
 <option>Junior Developer</option>
 <option>Associate Software Engineer</option>
@@ -276,31 +273,25 @@ const AddEmployee = ({ onClose, onSave }) => {
 
           <div>
             <label>Mobile Number</label>
-            <input
-              type="text"
-              name="mobile"
-              value={form.mobile}
-              onChange={handleChange}
-              className="w-full p-3 mt-1 rounded-md border border-gray-300 text-black bg-[#FFFFFF8A]"
-            />
+            <input type="text" name="mobile" value={form.mobile} onChange={handleChange} className="w-full p-3 mt-1 rounded-md border border-gray-300 text-black bg-[#FFFFFF8A]" />
             {errors.mobile && <p className="text-red-400 text-sm mt-1">{errors.mobile}</p>}
           </div>
         </div>
 
         <div className="flex justify-center mt-10 gap-6">
-  <button
-    onClick={onClose}
-    className="bg-[#0B0E74] px-10 py-3 text-white text-lg rounded-full hover:bg-blue-900"
-  >
-    Cancel
-  </button>
-  <button
-    onClick={handleSubmit}
-    className="bg-[#0B0E74] px-10 py-3 text-white text-lg rounded-full hover:bg-blue-900"
-  >
-    Submit
-  </button>
-</div>
+          <button
+            onClick={onClose}
+            className="bg-[#0B0E74] px-10 py-3 text-white text-lg rounded-full hover:bg-blue-900"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            className="bg-[#0B0E74] px-10 py-3 text-white text-lg rounded-full hover:bg-blue-900"
+          >
+            Add
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './ViewEmployeeDetails.css';
 import { MdDeleteForever } from "react-icons/md";
-import { FaUserEdit } from "react-icons/fa";
-import { FaSearch } from "react-icons/fa";
+import { FaUserEdit, FaSearch } from "react-icons/fa";
 import TopBar from './TopBar';
 import AddEmployee from './AddEmployee';
 import EditEmployee from './EditEmployee';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import { toast } from 'react-toastify';
+import EmployeeService from "../ApiServices/EmployeeService";
 
 function ViewEmployeeDetails() {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -18,10 +18,33 @@ function ViewEmployeeDetails() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [empToDelete, setEmpToDelete] = useState(null);
 
-  const handleAdd = (newEmp) => {
-    setEmployees([...employees, newEmp]);
-    toast.success("Employee added successfully!");
-  };
+  const fetchEmployeeDetails = async()=>{
+    EmployeeService.fetchEmployeeDetails()
+      .then((response) => {
+        setEmployees(response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching employee data:", error);
+        toast.error("Failed to fetch employee data!");
+      });
+
+  }
+
+  useEffect(() => {
+    fetchEmployeeDetails();
+  }, []);
+
+ 
+  const filteredEmployees = employees.filter((emp) => {
+    const term = searchTerm.toLowerCase();
+    return (
+      emp.fullName?.toLowerCase().includes(term) ||
+      emp.empId?.toLowerCase().includes(term) ||
+      emp.emailId?.toLowerCase().includes(term) ||
+      emp.designation?.toLowerCase().includes(term)
+    );
+  });
+
 
   const handleEditClick = (emp) => {
     setEditData(emp);
@@ -42,20 +65,20 @@ function ViewEmployeeDetails() {
   };
 
   const confirmDelete = () => {
-    const updated = employees.filter((e) => e.empId !== empToDelete.empId);
-    setEmployees(updated);
-    toast.success("Employee deleted successfully!");
-    setShowDeleteModal(false);
-  };
-  const filteredEmployees = employees.filter((emp) => {
-  const term = searchTerm.toLowerCase();
-  return (
-    emp.name.toLowerCase().includes(term) ||
-    emp.empId.toLowerCase().includes(term) ||
-    emp.email.toLowerCase().includes(term) ||
-    emp.designation.toLowerCase().includes(term)
-  );
-});
+    EmployeeService.deleteEmployeeById(empToDelete.id)
+    .then(() => {
+      const updated = employees.filter((e) => e.id !== empToDelete.id);
+      setEmployees(updated);
+      toast.success("Employee deleted successfully!");
+    })
+    .catch((error) => {
+      console.error("Error deleting employee:", error);
+      toast.error("Failed to delete employee!");
+    })
+    .finally(() => {
+      setShowDeleteModal(false);
+    });
+};
 
 
   return (
@@ -63,11 +86,12 @@ function ViewEmployeeDetails() {
       <TopBar
         tittle="List Of Employee Details"
         btn="Add+"
+
         onAddClick={() => setShowAddModal(true)}
       />
 
-      <div className="min-h-full bg-[#94C8FF73] rounded-3xl p-5 mt-7">
-        <div className="relative w-full flex justify-end mb-10">
+      <div className="h-full bg-[#94C8FF73] rounded-3xl p-5 mt-7">
+        <div className="relative w-full h-full flex justify-end mb-10">
           <span className="absolute text-gray-500 mt-4 me-6">
             <FaSearch />
           </span>
@@ -90,17 +114,17 @@ function ViewEmployeeDetails() {
           <span className="w-2/12 text-center">Action</span>
         </div>
 
-        <div className="bg-[#FFFFFFD1] border border-[#9DCAF908] mt-10 p-4 flex flex-col gap-1 rounded-3xl">
-          {filteredEmployees.length=== 0 ? (
+        <div className="bg-[#FFFFFFD1] h-[51vh] border border-[#9DCAF908] mt-10 p-4 flex flex-col gap-1 rounded-3xl overflow-y-scroll scroll">
+          {filteredEmployees.length === 0 ? (
             <p className="text-center text-gray-600 text-lg">No employees found.</p>
           ) : (
             filteredEmployees.map((emp, index) => (
-              <div key={emp.empId} className="flex justify-between items-center p-3 bg-[#9DCAF999] rounded-xl">
+              <div key={`${emp.Id}-${index}`} className="flex justify-between items-center p-3 bg-[#9DCAF999] rounded-xl">
                 <span className="w-1/12 text-center">{index + 1}</span>
                 <span className="w-2/12 text-center">{emp.empId}</span>
-                <span className="w-2/12 text-center">{emp.name}</span>
-                <span className="w-3/12 text-center">{emp.email}</span>
-                <span className="w-2/12 text-center">{emp.mobile}</span>
+                <span className="w-2/12 text-center">{emp.fullName}</span>
+                <span className="w-3/12 text-center">{emp.emailId}</span>
+                <span className="w-2/12 text-center">{emp.mobileNo}</span>
                 <span className="w-2/12 text-center">{emp.designation}</span>
                 <span className="w-2/12 text-center">
                   <button className="text-[#A18008D1] text-3xl px-2 py-1 rounded" onClick={() => handleEditClick(emp)}>
@@ -119,7 +143,8 @@ function ViewEmployeeDetails() {
       {showAddModal && (
         <AddEmployee
           onClose={() => setShowAddModal(false)}
-          onSave={handleAdd}
+          fetchEmployeeDetails={fetchEmployeeDetails}
+          
         />
       )}
 
@@ -135,7 +160,7 @@ function ViewEmployeeDetails() {
         <DeleteConfirmationModal
           onCancel={() => setShowDeleteModal(false)}
           onConfirm={confirmDelete}
-          employeeName={empToDelete?.name}
+          employeeName={empToDelete?.fullName}
         />
       )}
     </div>

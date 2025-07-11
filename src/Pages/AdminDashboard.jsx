@@ -11,10 +11,8 @@ function AdminDashboard() {
     <div className='w-screen h-screen flex items-center'>
          <div className="w-[98%] h-[96%] mx-auto rounded-xl flex gap-3 ">
       <SideBar />
-      <div className="w-full h-auto rounded-2xl" >
-      <div >
+      <div className="w-full h-full overflow-hidden rounded-2xl" >
         <Outlet />
-      </div>
       </div>
     </div>
     </div>

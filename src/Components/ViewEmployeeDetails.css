@@ -4,6 +4,9 @@
     border-radius: 12px;
 
 } */
+.scroll{
+    scrollbar-width: none;
+}
 .secondrow{
     background-color: #94C8FF73;
     border: 1px solid #94C8FF73;

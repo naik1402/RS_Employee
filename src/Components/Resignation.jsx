@@ -1,42 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TopBar from './TopBar';
-import ApplyResignation from './ApplyResignation'; // ⬅️ Import the modal component
+import ApplyResignation from './ApplyResignation';
+import ResignationService from '../ApiServices/ResignationService';
+import EmployeeService from '../ApiServices/EmployeeService';
+import { toast } from 'react-toastify';
 
 const Resignation = () => {
   const [showModal, setShowModal] = useState(false);
-  const [employees, setEmployees] = useState([
-    {
-      id: '101',
-      name: 'Nirmal Naik',
-      reason: 'sick',
-      stdt: '21/06/2025',
-      endt: '25/06/2025',
-    },
-    {
-      id: '102',
-      name: 'Rohit Dash',
-      reason: 'cold & fever',
-      stdt: '21/06/2025',
-      endt: '25/06/2025',
-    },
-  ]);
+  const [combinedData, setCombinedData] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const handleAddResignation = (reason) => {
-    const newEmp = {
-      id: Date.now().toString(),
-      name: 'Demo User',
-      reason,
-      stdt: '26/06/2025',
-      endt: '26/07/2025',
-    };
-    setEmployees((prev) => [...prev, newEmp]);
+  const fetchResignationsAndEmployees = async () => {
+    try {
+      const [resRes, empRes] = await Promise.all([
+        ResignationService.fetchEmployeeres(),
+        EmployeeService.fetchEmployeeDetails()
+      ]);
+
+      // Combine resignation with matching employee info
+      const combined = resRes.data.map((res) => {
+        const match = empRes.data.find(
+          (emp) =>
+            emp.mobileNo === res.mobileNo ||
+            emp.emailId === res.emailId
+        );
+        return {
+          ...res,
+          fullName: match?.fullName || 'N/A',
+          emailId: match?.emailId || 'N/A',
+          mobileNo: match?.mobileNo || 'N/A',
+          designation: match?.designation || 'N/A',
+        };
+      });
+
+      
+      setCombinedData(combined);
+    } catch (error) {
+      toast.error("Failed to load resignation or employee data.");
+      console.error("Fetch error:", error);
+    }
   };
+
+  useEffect(() => {
+    fetchResignationsAndEmployees();
+  }, []);
+
+  const handleAddResignation = async (data) => {
+    try {
+      await ResignationService.applyResignation(data);
+      toast.success("Resignation applied successfully!");
+      fetchResignationsAndEmployees();
+    } catch (error) {
+      toast.error("Failed to apply resignation.");
+      console.error("Apply error:", error);
+    }
+  };
+
+  const filteredResignations = combinedData.filter((res) =>
+    res.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    res.reason?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    res.status?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <div>
       <TopBar
         tittle="List of Resignation Details"
-        btn="Apply Resignation"
+        btn="Apply"
         onAddClick={() => setShowModal(true)}
       />
 
@@ -51,38 +81,44 @@ const Resignation = () => {
         <div className="w-full flex justify-end mb-10">
           <input
             type="text"
-            placeholder="search by name, ID, email or designation"
+            placeholder="Search by name, reason or status"
             className="border rounded-3xl bg-white text-black p-3 w-120"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
 
         <div className="bg-[#AB95F991] text-white rounded-full px-10 py-5 font-semibold flex justify-between items-center">
           <span className="w-1/12 text-center">SL.NO</span>
-          <span className="w-2/12 text-center">Employee ID</span>
-          <span className="w-2/12 text-center">Employee Name</span>
-          <span className="w-3/12 text-center">Reason for Leaving</span>
-          <span className="w-2/12 text-center">Start Date</span>
-          <span className="w-2/12 text-center">End Date</span>
-          <span className="w-2/12 text-center">Status</span>
+          <span className="w-2/12 text-center">Name</span>
+          <span className="w-2/12 text-center">Email</span>
+          <span className="w-2/12 text-center">Mobile</span>
+          <span className="w-2/12 text-center">Designation</span>
+          <span className="w-2/12 text-center">Reason</span>
+          <span className="w-2/12 text-center">Apply Date</span>
+          <span className="w-1/12 text-center">Status</span>
         </div>
 
         <div className="bg-[#FFFFFFD1] border border-[#9DCAF908] mt-10 p-4 flex flex-col gap-1 rounded-3xl">
-          {employees.map((emp, index) => (
-            <div
-              key={emp.id}
-              className="flex justify-between items-center p-3 bg-[#AB95F987] rounded-xl"
-            >
-              <span className="w-1/12 text-center">{index + 1}</span>
-              <span className="w-2/12 text-center">{emp.id}</span>
-              <span className="w-2/12 text-center">{emp.name}</span>
-              <span className="w-3/12 text-center">{emp.reason}</span>
-              <span className="w-2/12 text-center">{emp.stdt}</span>
-              <span className="w-2/12 text-center">{emp.endt}</span>
-              <span className="w-2/12 text-center">
-                <p>Approved</p>
-              </span>
-            </div>
-          ))}
+          {filteredResignations.length > 0 ? (
+            filteredResignations.map((res, index) => (
+              <div
+                key={res.id || index}
+                className="flex justify-between items-center p-3 bg-[#AB95F987] rounded-xl"
+              >
+                <span className="w-1/12 text-center">{index + 1}</span>
+                <span className="w-2/12 text-center">{res.fullName}</span>
+                <span className="w-2/12 text-center">{res.emailId}</span>
+                <span className="w-2/12 text-center">{res.mobileNo}</span>
+                <span className="w-2/12 text-center">{res.designation}</span>
+                <span className="w-2/12 text-center">{res.reason}</span>
+                <span className="w-2/12 text-center">{res.dateOfApplying}</span>
+                <span className="w-1/12 text-center">{res.status || 'Pending'}</span>
+              </div>
+            ))
+          ) : (
+            <div className="text-center text-gray-600">No resignation requests found</div>
+          )}
         </div>
       </div>
     </div>
