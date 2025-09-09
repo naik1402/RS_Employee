@@ -1,9 +1,9 @@
-// ✅ Updated AddEmployee.jsx
-import React, { useState } from 'react';
+// ✅ Updated EditEmployee.jsx
+import React, { useState, useEffect } from 'react';
 import EmployeeService from "../ApiServices/EmployeeService";
 import { toast } from 'react-toastify';
 
-const AddEmployee = ({ onClose,fetchEmployeeDetails }) => {
+const EditEmployee = ({ onClose, onUpdate, initialData }) => {
   const [form, setForm] = useState({
     email: '',
     empId: '',
@@ -13,6 +13,17 @@ const AddEmployee = ({ onClose,fetchEmployeeDetails }) => {
     designation: ''
   });
   const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    setForm({
+      email: initialData?.email || '',
+      empId: initialData?.empId || '',
+      name: initialData?.name || '',
+      mobile: initialData?.mobile || '',
+      role: initialData?.role || '',
+      designation: initialData?.designation || ''
+    });
+  }, [initialData]);
 
   const validateField = (name, value) => {
     let message = '';
@@ -61,29 +72,31 @@ const AddEmployee = ({ onClose,fetchEmployeeDetails }) => {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      const newEmployee = {
+      const updatedPayload = {
         empId: form.empId,
-        fullName: form.name,
-        mobileNo: form.mobile,
-        emailId: form.email,
+        name: form.name,
+        mobile: form.mobile,
+        email: form.email,
         designation: form.designation,
-        role: form.role,
-        status: "request"
+        role: form.role.toLowerCase(),
+        status: "pending"
       };
 
-      EmployeeService.AddEmployee(newEmployee)
+      EmployeeService.updateEmployeeById(form.empId, updatedPayload)
         .then(() => {
-          toast.success("Employee added successfully!");
-          fetchEmployeeDetails();
+          toast.success("Employee updated successfully!");
+          onUpdate({ id: form.id, ...updatedPayload });
           onClose();
         })
-        .catch((err) => {
-          if (err.response?.status === 409) {
-            toast.error("Employee with this ID or Mobile already exists.");
-          } 
-          // else {
-          //   toast.error("Failed to add employee.");
-          // }
+        .catch((error) => {
+          console.error("Error updating employee:", error);
+          if (error.response?.status === 409) {
+            toast.error("Mobile number already exists.");
+          } else if (error.response?.status === 404) {
+            toast.error("Employee not found.");
+          } else {
+            toast.error("Failed to update employee.");
+          }
         });
     }
   };
@@ -91,7 +104,7 @@ const AddEmployee = ({ onClose,fetchEmployeeDetails }) => {
   return (
     <div className="fixed inset-0 backdrop-blur-xl bg-black/50 flex items-center justify-center z-50">
       <div className="bg-[#2A4455] text-white rounded-3xl p-10 w-[700px] shadow-lg">
-        <h2 className="text-2xl font-semibold mb-8 text-center">Add Employee</h2>
+        <h2 className="text-2xl font-semibold mb-8 text-center">Edit Details</h2>
         <div className="grid grid-cols-2 gap-6">
           <div>
             <label>Email</label>
@@ -289,7 +302,7 @@ const AddEmployee = ({ onClose,fetchEmployeeDetails }) => {
             onClick={handleSubmit}
             className="bg-[#0B0E74] px-10 py-3 text-white text-lg rounded-full hover:bg-blue-900"
           >
-            Add
+            Update
           </button>
         </div>
       </div>
@@ -297,4 +310,4 @@ const AddEmployee = ({ onClose,fetchEmployeeDetails }) => {
   );
 };
 
-export default AddEmployee;
+export default EditEmployee;

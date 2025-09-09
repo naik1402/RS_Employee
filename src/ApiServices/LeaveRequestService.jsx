@@ -1,27 +1,33 @@
 // LeaveRequestService.jsx
 import axios from 'axios';    
 
-const api_leave_url = "http://183.82.106.55:9104";
+const api_leave_url = "http://localhost:5000/api";
 
 class LeaveRequestService {
   static fetchEmployeeleave() {
-    return axios.get(`${api_leave_url}/LeaveRequest/fetch`, {
+    return axios.get(`${api_leave_url}/leaves/employee`, {
       headers: { "Content-Type": "application/json" }
     });
   }
 
+  static fetchHrleave(){
+    return axios.get(`${api_leave_url}/leaves/hr`,{
+      headers:{"Content-Type":"application/json"}
+    })
+  }
+
   static applyhrleave(data) {
-    return axios.post(`${api_leave_url}/LeaveRequest/add`, data, {
+    return axios.post(`${api_leave_url}/leaves/hr`, data, {
       headers: { "Content-Type": "application/json" }
     });
   }
-   static deleteLeaveRequest(id) {
-    return axios.delete(`${api_leave_url}/LeaveRequest/Erase/${id}`, {
+   static deleteLeaveRequest(empId) {
+    return axios.delete(`${api_leave_url}/leaves/hr/${empId}`, {
       headers: { "Content-Type": "application/json" }
     })
   }
-      static updateLeaveRequest(id, data) {
-  return axios.put(`${api_leave_url}/LeaveRequest/LeaveUpdate/${id}`, data, {
+      static updateLeaveRequest(empId, data) {
+  return axios.put(`${api_leave_url}/leaves/hr/${empId}`, data, {
     headers: { "Content-Type": "application/json" }
   });
 }

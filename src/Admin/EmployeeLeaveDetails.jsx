@@ -29,9 +29,9 @@ function EmployeeLeaveDetails() {
 
           return {
             ...leave,
-            fullName: match?.fullName || 'N/A',
-            emailId: match?.emailId || leave.emailId || 'N/A',
-            mobileNo: match?.mobileNo || leave.mobileNo || 'N/A',
+            fullName: match?.name || 'N/A',
+            emailId: match?.email || leave.email || 'N/A',
+            mobileNo: match?.mobile || leave.mobile || 'N/A',
             designation: match?.designation || 'N/A',
           };
         });
@@ -85,9 +85,9 @@ function EmployeeLeaveDetails() {
                 className="flex justify-between items-center p-3 bg-[#9AF99B91] rounded-xl"
               >
                 <span className="w-1/12 text-center">{index + 1}</span>
-                <span className="w-2/12 text-center">{leave.fullName}</span>
-                <span className="w-2/12 text-center">{leave.emailId}</span>
-                <span className="w-2/12 text-center">{leave.mobileNo}</span>
+                <span className="w-2/12 text-center">{leave.name}</span>
+                <span className="w-2/12 text-center">{leave.email}</span>
+                <span className="w-2/12 text-center">{leave.mobile}</span>
                 <span className="w-2/12 text-center">{leave.designation}</span>
                 <span className="w-2/12 text-center">{leave.reason}</span>
                 <span className="w-2/12 text-center">{leave.startDate}</span>
